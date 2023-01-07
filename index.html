@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Supercross Race Guessing for the Morales Bros</title>
+  <!-- <link rel="stylesheet" href="./style.css"> -->
+  <link rel="stylesheet" type="text/css" href="style.css" media="screen"/>
+</head>
+<!-- partial:index.partial.html -->
+<!--  Beginning of render  -->
+  <body>
+    <h1 id="title">2023 Supercross Prediction Form</h1>
+    <h3 id="winners">Current Winner: <h3 class="winner-name">Bryce!</h3></h3>
+    <p id="description">Please fill out this form with your 450 class Supercross predictions</p>
+    <!-- Names & Picks -->
+    <span>
+      <h2 class="bryce-pick">Bryce's Pick: <h2 id="bryce_rider" class="b-pick-rider"></h2></h2>
+      <h2 class="chase-pick">Chase's Pick: <h2 id="chase_rider" class="c-pick-rider"></h2></h2>
+      <h2 class="zach-pick">Zach's Pick: <h2 id="zach_rider" class="z-pick-rider"></h2></h2>
+      <h2 id="errorMessage">Error pullling data from backend. Please contact page creator to resolve issue!</h2>
+    </span>
+<!--   First Entries   -->
+    <form id="survey-form" method="POST" data-netlify="true" name="supercrossForm">
+      
+      <fieldset>
+        <label id="name-label">Enter Your Name: <input id="name" type="text" name="name" placeholder="Please Enter a Name Here" required /></label>
+            
+        <label id="number-label">Enter the Number of Your Favorite Rider: <input id="favorite_rider_number" type="number" name="number" min="1" max="999" placeholder="Please Enter the Number of Your Favorite Rider" required /></label>
+      </fieldset>
+<!--    Middle Entries    -->
+      <fieldset>
+        <label><input type="radio" name="rider" class="inline" value="Eli Tomac" required/> Eli Tomac</label>
+        <label><input type="radio" name="rider" class="inline" value="Ken Roczen" /> Ken Roczen</label>
+        <label><input type="radio" name="rider" class="inline" value="Adam Cianciarulo" /> Adam Cianciarulo</label>
+        <label><input type="radio" name="rider" class="inline" value="Jason Anderson" /> Jason Anderson</label>
+        <label><input type="radio" name="rider" class="inline" value="Aaron Plessinger" /> Aaron Plessinger</label>
+        <label><input type="radio" name="rider" class="inline" value="Justin Barcia" /> Justin Barcia</label>
+        <label><input type="radio" name="rider" class="inline" value="Cooper Webb" /> Cooper Webb</label>
+        <label><input type="radio" name="rider" class="inline" value="Marvin Musquin" /> Marvin Musquin</label>
+        <label><input type="radio" name="rider" class="inline" value="Malcolm Stewart" /> Malcolm Stewart</label>
+        <label><input type="radio" name="rider" class="inline" value="Chase Sexton" /> Chase Sexton</label>
+        <label><input type="radio" name="rider" class="inline" value="Christian Craig" /> Christian Craig</label>
+      </fieldset>
+<!--    Last Entries    -->
+      <fieldset>
+        
+        <label id="dropdown">What do you think about the options?
+          <select name="dropdownoptions">
+            <option value="select_one">(select one)</option>
+            <option value="Add_a_rider">You need to add a rider (suggest below)</option>
+            <option value="I_think_its_great">I think it's great!</option>
+            <option value="I_miss_Villapoto">I miss Villapoto :(</option>
+            <option value="No_opinion">I don't have an opinion</option>
+          </select>
+        </label>
+        <label>Provide Any Suggestions Here:
+          <textarea name="suggestions" rows="3" cols="30" placeholder="Add any suggestions here..."></textarea>
+			  </label>
+      </fieldset>
+<!--    Submit Button    -->
+      <input id="submit" type="submit" value="Submit" />
+      
+    </form>
+<!--   End of Form   -->
+    <script>
+      let brycePick = document.getElementById("bryce_rider");
+      let chasePick = document.getElementById("chase_rider");
+      let zachPick = document.getElementById("zach_rider");
+      let bryceName = document.getElementsByClassName("bryce-pick")[0];
+      let chaseName = document.getElementsByClassName("chase-pick")[0];
+      let zachName = document.getElementsByClassName("zach-pick")[0];
+      let errorBlock = document.getElementById("errorMessage");
+
+      function setErrorDisplay() {
+        brycePick.style.display = "none";
+        chasePick.style.display = "none";
+        zachPick.style.display = "none";
+        bryceName.style.display = "none";
+        chaseName.style.display = "none";
+        zachName.style.display = "none";
+        errorBlock.style.display = "block";
+      }
+
+      function lowerCase(word) {
+        let newWord = "";
+        newWord = word.toLowerCase();
+        console.log(word);
+        return newWord;
+      }
+
+      //Serverless Backend Handler (Google Sheets)
+      fetch("https://api.apispreadsheets.com/data/XrlyHOCIHNVpfsUq/").then(res=>{
+	      if (res.status === 200){
+		      // SUCCESS
+          res.json().then(data=>{
+            const yourData = data["data"];
+            for (let i = 0; i < yourData.length; i++) {
+              let rowInfo = yourData[i];
+              if(lowerCase(rowInfo["name"]).includes("chase")) {
+                // chasePick.insertAdjacentHTML('afterbegin', rowInfo["rider_pick"]);
+                console.log(rowInfo["rider_pick"]);
+                chasePick.innerHTML = rowInfo["rider_pick"];
+              }
+              else if(lowerCase(rowInfo["name"]).includes("zach")) {
+                // zachPick.insertAdjacentHTML('afterbegin', rowInfo["rider_pick"]);
+                console.log(rowInfo["rider_pick"]);
+                zachPick.innerHTML= rowInfo["rider_pick"];
+              }
+              else if(lowerCase(rowInfo["name"]).includes("bryce")) {
+                // brycePick.insertAdjacentHTML('afterbegin', rowInfo["rider_pick"]);
+                console.log(rowInfo["rider_pick"]);
+                brycePick.innerHTML = rowInfo["rider_pick"];
+              }
+            }
+            //Error
+          }).catch(err => {
+            console.log(err);
+            setErrorDisplay();
+          })
+	      }
+	      else{
+		      // ERROR
+          setErrorDisplay();
+	      }
+        //Error
+      }).catch(err =>{
+        console.log(err);
+        setErrorDisplay();
+      })
+    </script>
+  </body>
+<!-- partial -->
+</html>
